@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lyrics Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #1a1a2e;
+            --text-color: #ffffff;
+            --accent-color: #3b82f6;
+            --hover-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .lyrics-container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            transition: opacity 0.5s;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .song-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .song-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .song-artist {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .lyrics-content {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 80px;
+            min-height: 0;
+        }
+
+        .lyrics-text {
+            font-size: var(--lyrics-font-size, 3.5rem);
+            font-family: var(--lyrics-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+            color: var(--lyrics-text-color, #ffffff);
+            text-align: center;
+            line-height: var(--lyrics-line-height, 1.4);
+            white-space: pre-line;
+            user-select: none;
+            text-shadow: var(--lyrics-text-shadow, none);
+            transition: opacity 0.3s ease;
+            font-weight: var(--lyrics-font-weight, normal);
+        }
+
+        .lyrics-text.fade-out {
+            opacity: 0;
+        }
+
+        .page-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            opacity: 0.6;
+            z-index: 100;
+            transition: opacity 0.3s;
+        }
+
+        .page-indicator:hover {
+            opacity: 1;
+        }
+
+        .auto-indicator {
+            color: var(--accent-color);
+            margin-left: 10px;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 320px;
+            height: 100vh;
+            background: var(--bg-color);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--hover-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .song-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .song-item {
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .song-item:hover {
+            background: var(--hover-color);
+        }
+
+        .song-item.active {
+            background: var(--accent-color);
+        }
+
+        .song-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-item-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-item-artist {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .song-item-delete {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.2s, background 0.2s;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .song-item:hover .song-item-delete {
+            opacity: 0.6;
+        }
+
+        .song-item-delete:hover {
+            opacity: 1 !important;
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            z-index: 150;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .welcome-screen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+        }
+
+        .welcome-screen h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .welcome-screen p {
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .welcome-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .welcome-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .welcome-hint {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+
+        .shortcuts-hint {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            font-size: 0.85rem;
+            opacity: 0.4;
+            text-align: right;
+            line-height: 1.6;
+        }
+
+        .shortcuts-hint kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .settings-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 420px;
+            max-width: 90vw;
+            max-height: 90vh;
+            background: var(--bg-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+            z-index: 250;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-modal.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .settings-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .settings-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .settings-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .setting-row {
+            margin-bottom: 15px;
+        }
+
+        .setting-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 10px 15px;
+            background: var(--hover-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .setting-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .setting-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .setting-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--hover-color);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .setting-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .setting-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .setting-value {
+            min-width: 50px;
+            text-align: right;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border: 3px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .color-swatch.active {
+            border-color: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .setting-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: var(--hover-color);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-color);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+
+        .shadow-settings {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--hover-color);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .shadow-settings.visible {
+            display: block;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .theme-thumb {
+            aspect-ratio: 16/10;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: transform 0.15s, border-color 0.15s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .theme-thumb:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-thumb.active {
+            border-color: var(--accent-color);
+        }
+
+        .theme-thumb-inner {
+            width: 100%;
+            height: calc(100% - 24px);
+        }
+
+        .theme-thumb-name {
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-color);
+            background: rgba(0,0,0,0.3);
+        }
+
+        .bg-settings {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--hover-color);
+            border-radius: 8px;
+        }
+
+        .bg-settings.hidden {
+            display: none;
+        }
+
+        /* Background Theme Animations - Peaceful Multi-layer Effects */
+        
+        /* ===== Golden Glow - Warm ethereal light ===== */
+        .bg-golden-glow {
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(255, 180, 80, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 220, 150, 0.1) 0%, transparent 40%),
+                linear-gradient(175deg, #1a0f00 0%, #2d1800 40%, #1a0f00 100%);
+        }
+
+        .bg-golden-glow::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 50% 50%, rgba(255, 200, 100, 0.2) 0%, transparent 60%),
+                radial-gradient(ellipse at 30% 70%, rgba(255, 150, 50, 0.15) 0%, transparent 50%);
+            animation: goldenPulse calc(20s / var(--bg-speed, 1)) ease-in-out infinite;
+        }
+
+        .bg-golden-glow::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; right: -50%; bottom: -50%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 220, 150, 0.08) 0%, transparent 50%);
+            animation: goldenBreath calc(25s / var(--bg-speed, 1)) ease-in-out infinite;
+        }
+
+        @keyframes goldenPulse {
+            0%, 100% { opacity: 0.6; transform: scale(1) translateY(0); }
+            33% { opacity: 1; transform: scale(1.05) translateY(-5px); }
+            66% { opacity: 0.8; transform: scale(0.98) translateY(3px); }
+        }
+
+        @keyframes goldenBreath {
+            0%, 100% { opacity: 0.5; transform: scale(1.1); }
+            50% { opacity: 0.9; transform: scale(0.95); }
+        }
+
+        /* ===== Soft Aurora - Flowing northern lights ===== */
+        .bg-soft-aurora {
+            background: 
+                linear-gradient(135deg, #1a1a3e 0%, #2d2d5e 25%, #3d2d6e 50%, #2d2d5e 75%, #1a1a3e 100%);
+        }
+
+        .bg-soft-aurora::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; right: -100%; bottom: 0;
+            background: 
+                linear-gradient(90deg, 
+                    transparent 0%,
+                    rgba(102, 126, 234, 0.3) 25%,
+                    rgba(118, 75, 162, 0.4) 50%,
+                    rgba(102, 126, 234, 0.3) 75%,
+                    transparent 100%);
+            background-size: 200% 100%;
+            animation: auroraWave1 calc(30s / var(--bg-speed, 1)) linear infinite;
+            opacity: var(--bg-intensity, 0.5);
+        }
+
+        .bg-soft-aurora::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; right: -50%; bottom: -50%;
+            background: 
+                linear-gradient(45deg,
+                    transparent 0%,
+                    rgba(180, 130, 200, 0.15) 30%,
+                    rgba(100, 150, 220, 0.1) 50%,
+                    rgba(180, 130, 200, 0.15) 70%,
+                    transparent 100%);
+            background-size: 150% 150%;
+            animation: auroraWave2 calc(25s / var(--bg-speed, 1)) ease-in-out infinite;
+            animation-delay: calc(-10s / var(--bg-speed, 1));
+        }
+
+        @keyframes auroraWave1 {
+            0% { transform: translateX(-25%); }
+            100% { transform: translateX(25%); }
+        }
+
+        @keyframes auroraWave2 {
+            0%, 100% { opacity: 0.4; transform: translate(0, 0) rotate(0deg); }
+            33% { opacity: 0.8; transform: translate(5%, -5%) rotate(2deg); }
+            66% { opacity: 0.5; transform: translate(-3%, 3%) rotate(-1deg); }
+        }
+
+        /* ===== Gentle Stars - Peaceful night sky ===== */
+        .bg-gentle-stars {
+            background: linear-gradient(to bottom, #0a0a1a 0%, #151530 50%, #0a0a1a 100%);
+        }
+
+        .bg-gentle-stars::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1.5px 1.5px at 10% 20%, rgba(255,255,255,0.9) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                radial-gradient(2px 2px at 40% 10%, rgba(255,240,200,0.8) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 70% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                radial-gradient(2px 2px at 15% 65%, rgba(255,240,200,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 60% 70%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                radial-gradient(1px 1px at 80% 85%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                radial-gradient(2px 2px at 50% 50%, rgba(255,240,200,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 95% 40%, rgba(255,255,255,0.8) 0%, transparent 100%);
+            animation: starsTwinkle calc(8s / var(--bg-speed, 1)) ease-in-out infinite;
+            opacity: var(--bg-intensity, 0.6);
+        }
+
+        .bg-gentle-stars::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 100%, rgba(100, 100, 150, 0.1) 0%, transparent 60%);
+            animation: starsGlow calc(15s / var(--bg-speed, 1)) ease-in-out infinite;
+        }
+
+        @keyframes starsTwinkle {
+            0%, 100% { opacity: var(--bg-intensity, 0.6); }
+            50% { opacity: calc(var(--bg-intensity, 0.6) * 0.4); }
+        }
+
+        @keyframes starsGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ===== Warm Mist - Soft flowing fog ===== */
+        .bg-warm-mist {
+            background: 
+                linear-gradient(to bottom, #d4c4c4 0%, #a8b8c8 50%, #d4c4c4 100%);
+        }
+
+        .bg-warm-mist::before {
+            content: '';
+            position: absolute;
+            top: -100%; left: -100%; right: -100%; bottom: -100%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(255, 250, 245, 0.6) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(255, 245, 235, 0.4) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 80%, rgba(240, 230, 220, 0.5) 0%, transparent 45%);
+            animation: mistFlow1 calc(25s / var(--bg-speed, 1)) ease-in-out infinite;
+            opacity: var(--bg-intensity, 0.6);
+        }
+
+        .bg-warm-mist::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; right: -50%; bottom: -50%;
+            background: 
+                radial-gradient(ellipse at 80% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 40%),
+                radial-gradient(ellipse at 30% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 35%);
+            animation: mistFlow2 calc(20s / var(--bg-speed, 1)) ease-in-out infinite;
+            animation-delay: calc(-8s / var(--bg-speed, 1));
+        }
+
+        @keyframes mistFlow1 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: var(--bg-intensity, 0.6); }
+            25% { transform: translate(5%, 3%) scale(1.05); opacity: calc(var(--bg-intensity, 0.6) * 1.2); }
+            50% { transform: translate(-3%, 5%) scale(0.98); opacity: var(--bg-intensity, 0.6); }
+            75% { transform: translate(3%, -2%) scale(1.02); opacity: calc(var(--bg-intensity, 0.6) * 0.8); }
+        }
+
+        @keyframes mistFlow2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.4; }
+            33% { transform: translate(-5%, 5%) rotate(-3deg); opacity: 0.6; }
+            66% { transform: translate(5%, -3%) rotate(3deg); opacity: 0.35; }
+        }
+
+        /* ===== Divine Light - Radiant heavenly glow ===== */
+        .bg-divine-light {
+            background: 
+                radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                linear-gradient(to bottom, #e8e0f0 0%, #c8b8e8 30%, #e8e0f0 100%);
+        }
+
+        .bg-divine-light::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; right: -50%; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.5) 0%, transparent 40%),
+                radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 30%),
+                radial-gradient(ellipse at 70% 25%, rgba(255, 255, 255, 0.3) 0%, transparent 30%);
+            animation: divineRays calc(20s / var(--bg-speed, 1)) ease-in-out infinite;
+        }
+
+        .bg-divine-light::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+            animation: divineGlow calc(15s / var(--bg-speed, 1)) ease-in-out infinite;
+            animation-delay: calc(-5s / var(--bg-speed, 1));
+        }
+
+        @keyframes divineRays {
+            0%, 100% { opacity: 0.5; transform: translateY(0) scale(1); }
+            50% { opacity: 0.9; transform: translateY(-10px) scale(1.1); }
+        }
+
+        @keyframes divineGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        /* ===== Bokeh Effect - Beautiful floating lights ===== */
+        .bg-purple-dream {
+            background: linear-gradient(135deg, #583C87 0%, #E45A84 50%, #FFACAC 100%);
+            overflow: hidden;
+        }
+
+        .bg-purple-dream .particle {
+            width: 30vmin;
+            height: 30vmin;
+            border-radius: 30vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-purple-dream .particle:nth-child(1) { color: #583C87; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(2) { color: #FFACAC; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(3) { color: #E45A84; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(4) { color: #583C87; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(5) { color: #FFACAC; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(6) { color: #E45A84; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(7) { color: #583C87; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(8) { color: #FFACAC; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(9) { color: #E45A84; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(10) { color: #583C87; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(11) { color: #FFACAC; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(12) { color: #E45A84; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(13) { color: #583C87; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(14) { color: #FFACAC; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(15) { color: #E45A84; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(16) { color: #583C87; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(17) { color: #FFACAC; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(18) { color: #E45A84; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(19) { color: #583C87; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(20) { color: #FFACAC; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        @keyframes bokehMove {
+            100% {
+                transform: translate3d(0, 0, 1px) rotate(360deg);
+            }
+        }
+
+        /* ===== Bokeh 2 Effect - Cotton Candy floating lights ===== */
+        .bg-cotton-candy {
+            background: linear-gradient(135deg, #152a62 0%, #3b82f6 50%, #f472b6 100%);
+            overflow: hidden;
+        }
+
+        .bg-cotton-candy .particle {
+            width: 30vmin;
+            height: 30vmin;
+            border-radius: 30vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-cotton-candy .particle:nth-child(1) { color: #3b82f6; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(2) { color: #f472b6; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(3) { color: #f472b6; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(4) { color: #3b82f6; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(5) { color: #93c5fd; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(6) { color: #f472b6; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(7) { color: #3b82f6; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(8) { color: #93c5fd; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(9) { color: #f472b6; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(10) { color: #3b82f6; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(11) { color: #93c5fd; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(12) { color: #f472b6; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(13) { color: #f472b6; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(14) { color: #93c5fd; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(15) { color: #f472b6; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(16) { color: #3b82f6; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(17) { color: #93c5fd; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(18) { color: #f472b6; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(19) { color: #3b82f6; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(20) { color: #93c5fd; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        /* ===== Bokeh 3 Effect - Golden Hour ===== */
+        .bg-golden-hour {
+            background: linear-gradient(135deg, #0d0d16 0%, #4a3f6b 45%, #e6a86e 100%);
+            overflow: hidden;
+        }
+
+        .bg-golden-hour .particle {
+            width: 30vmin;
+            height: 30vmin;
+            border-radius: 30vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-golden-hour .particle:nth-child(1) { color: #f59e0b; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(2) { color: #fbbf24; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(3) { color: #f97316; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(4) { color: #f59e0b; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(5) { color: #fbbf24; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(6) { color: #f97316; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(7) { color: #f59e0b; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(8) { color: #fbbf24; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(9) { color: #f97316; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(10) { color: #f59e0b; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(11) { color: #fbbf24; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(12) { color: #f97316; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(13) { color: #f59e0b; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(14) { color: #fbbf24; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(15) { color: #f97316; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(16) { color: #f59e0b; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(17) { color: #fbbf24; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(18) { color: #f97316; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(19) { color: #f59e0b; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(20) { color: #fbbf24; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        /* ===== Bokeh 4 Effect - Ocean Deep ===== */
+        .bg-ocean-deep {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #209cff 100%);
+            overflow: hidden;
+        }
+
+        .bg-ocean-deep .particle {
+            width: 30vmin;
+            height: 30vmin;
+            border-radius: 30vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-ocean-deep .particle:nth-child(1) { color: #06b6d4; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(2) { color: #22d3ee; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(3) { color: #3b82f6; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(4) { color: #06b6d4; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(5) { color: #22d3ee; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(6) { color: #3b82f6; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(7) { color: #06b6d4; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(8) { color: #22d3ee; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(9) { color: #3b82f6; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(10) { color: #06b6d4; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(11) { color: #22d3ee; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(12) { color: #3b82f6; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(13) { color: #06b6d4; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(14) { color: #22d3ee; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(15) { color: #3b82f6; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(16) { color: #06b6d4; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(17) { color: #22d3ee; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(18) { color: #3b82f6; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(19) { color: #06b6d4; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(20) { color: #22d3ee; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        /* ===== Bokeh 5 Effect - Lavender ===== */
+        .bg-lavender {
+            background: linear-gradient(135deg, #2d1b4e 0%, #7b4bb9 50%, #c4b5fd 100%);
+            overflow: hidden;
+        }
+
+        .bg-lavender .particle {
+            width: 30vmin;
+            height: 30vmin;
+            border-radius: 30vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-lavender .particle:nth-child(1) { color: #a78bfa; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(2) { color: #c4b5fd; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(3) { color: #8b5cf6; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(4) { color: #a78bfa; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(5) { color: #c4b5fd; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(6) { color: #8b5cf6; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(7) { color: #a78bfa; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(8) { color: #c4b5fd; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(9) { color: #8b5cf6; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(10) { color: #a78bfa; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(11) { color: #c4b5fd; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(12) { color: #8b5cf6; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(13) { color: #a78bfa; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(14) { color: #c4b5fd; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(15) { color: #8b5cf6; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(16) { color: #a78bfa; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(17) { color: #c4b5fd; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(18) { color: #8b5cf6; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(19) { color: #a78bfa; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(20) { color: #c4b5fd; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        /* ===== Bokeh 6 Effect - Sunset ===== */
+        .bg-sunset {
+            background: linear-gradient(135deg, #1a0a2e 0%, #c2410c 50%, #fdba74 100%);
+            overflow: hidden;
+        }
+
+        .bg-sunset .particle {
+            width: 30vmin;
+            height: 30vmin;
+            border-radius: 30vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-sunset .particle:nth-child(1) { color: #fb923c; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(2) { color: #fdba74; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(3) { color: #f97316; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(4) { color: #fb923c; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(5) { color: #fdba74; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(6) { color: #f97316; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(7) { color: #fb923c; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(8) { color: #fdba74; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(9) { color: #f97316; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(10) { color: #fb923c; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(11) { color: #fdba74; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(12) { color: #f97316; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(13) { color: #fb923c; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(14) { color: #fdba74; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(15) { color: #f97316; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(16) { color: #fb923c; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(17) { color: #fdba74; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(18) { color: #f97316; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(19) { color: #fb923c; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(20) { color: #fdba74; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+    </style>
+</head>
+<body>
+    <div class="welcome-screen" id="welcomeScreen">
+        <h1>Lyrics Viewer</h1>
+        <p>Display lyrics in fullscreen slides</p>
+        <p class="welcome-hint">Press <kbd>A</kbd> to upload songs</p>
+    </div>
+
+    <div class="lyrics-container" id="lyricsContainer" style="display: none;">
+        <div class="background-layer" id="backgroundLayer"></div>
+        <div class="header" id="header">
+            <div class="song-info">
+                <div class="song-title" id="songTitle"></div>
+                <div class="song-artist" id="songArtist"></div>
+            </div>
+        </div>
+
+        <div class="lyrics-content">
+            <div class="lyrics-text" id="lyricsText">Sample lyrics text</div>
+        </div>
+
+        <div class="page-indicator" id="pageIndicator"></div>
+
+        <div class="shortcuts-hint">
+            <kbd>F</kbd> Fullscreen <kbd>A</kbd> Add Songs <kbd>S</kbd> Song List <kbd>X</kbd> Remove Song <kbd>T</kbd> Settings<br>
+            <kbd>←</kbd> <kbd>→</kbd> Navigate pages 
+            <kbd>[</kbd> Previous Song <kbd>]</kbd> Next Song
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="settingsOverlay" style="background: rgba(0,0,0,0.7);"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Songs</span>
+            <button class="close-btn" id="closeSidebar">×</button>
+        </div>
+        <div class="song-list" id="songList"></div>
+    </div>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-header">
+            <span class="settings-title">Settings</span>
+            <button class="close-btn" id="closeSettings">×</button>
+        </div>
+        <div class="settings-body">
+            <div class="settings-section">
+                <div class="section-title">Theme</div>
+                <div class="theme-grid" id="themeGrid">
+                    <div class="theme-thumb" data-theme="golden-hour" title="Golden Hour">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #1a1a2e 0%, #4a3f6b 50%, #e6a86e 100%);"></div>
+                        <div class="theme-thumb-name">Golden Hour</div>
+                    </div>
+                    <div class="theme-thumb" data-theme="ocean-deep" title="Ocean Deep">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #209cff 100%);"></div>
+                        <div class="theme-thumb-name">Ocean Deep</div>
+                    </div>
+                    <div class="theme-thumb" data-theme="purple-dream" title="Purple Dream">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #583C87 0%, #E45A84 50%, #FFACAC 100%);"></div>
+                        <div class="theme-thumb-name">Purple Dream</div>
+                    </div>
+                    <div class="theme-thumb" data-theme="cotton-candy" title="Cotton Candy">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #f472b6 100%);"></div>
+                        <div class="theme-thumb-name">Cotton Candy</div>
+                    </div>
+                    <div class="theme-thumb" data-theme="lavender" title="Lavender">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #2d1b4e 0%, #7b4bb9 50%, #c4b5fd 100%);"></div>
+                        <div class="theme-thumb-name">Lavender</div>
+                    </div>
+                    <div class="theme-thumb" data-theme="sunset" title="Sunset">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #1a0a2e 0%, #c2410c 50%, #fdba74 100%);"></div>
+                        <div class="theme-thumb-name">Sunset</div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="section-title">Text</div>
+                <div class="setting-row">
+                    <label class="setting-label">Font Family</label>
+                    <select class="setting-select" id="fontFamily">
+                        <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">System Default</option>
+                        <option value="Helvetica, Arial, sans-serif">Helvetica, Arial</option>
+                        <option value="Helvetica, Arial, Weibei SC, sans-serif">Helvetica, Arial, Weibei SC</option>
+                        <option value="Helvetica, Yuanti SC, sans-serif">Helvetica, Arial, Yuanti SC</option>
+                        <option value="Helvetica, Kaiti SC, sans-serif">Helvetica, Arial, Kaiti SC</option>
+                        <option value="Helvetica, Baoli SC, sans-serif">Helvetica, Arial, Baoli SC</option>
+                        <option value="Helvetica, Songti SC, sans-serif">Helvetica, Arial, Songti SC</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="Impact, sans-serif">Impact</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label">Font Size</label>
+                    <div class="setting-slider-row">
+                        <input type="range" class="setting-slider" id="fontSize" min="1.5" max="10" step="0.5" value="3.5">
+                        <span class="setting-value" id="fontSizeValue">3.5rem</span>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label">Line Height</label>
+                    <div class="setting-slider-row">
+                        <input type="range" class="setting-slider" id="lineHeight" min="1" max="2" step="0.1" value="1.5">
+                        <span class="setting-value" id="lineHeightValue">1.5</span>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <label class="setting-label">
+                        <input type="checkbox" id="boldText"> Bold Text
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".json" multiple>
+
+    <script>
+        const state = {
+            songs: [],
+            currentSongIndex: 0,
+            currentPage: 0,
+            headerTimeout: null,
+            cursorTimeout: null
+        };
+
+        const SONGS_STORAGE_KEY = 'lyrics-viewer-songs';
+        const SETTINGS_STORAGE_KEY = 'lyrics-viewer-settings';
+
+        const textColor_sel = '#ffffff';
+        const textShadow_sel = '1px 1px 12px rgba(0,0,0,0.7)';
+
+        const presetThemes = {
+            'golden-hour': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-golden-hour'
+            },
+            'ocean-deep': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-ocean-deep'
+            },
+            'purple-dream': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-purple-dream'
+            },
+            'cotton-candy': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-cotton-candy'
+            },
+            'lavender': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-lavender'
+            },
+            'sunset': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-sunset'
+            }
+        };
+
+        const defaultSettings = {
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontSize: 8,
+            lineHeight: 1.5,
+            bold: false,
+            theme: 'golden-hour'
+        };
+
+        let currentSettings = { ...defaultSettings };
+        let settingsSaveTimeout = null;
+
+        const elements = {
+            welcomeScreen: document.getElementById('welcomeScreen'),
+            lyricsContainer: document.getElementById('lyricsContainer'),
+            backgroundLayer: document.getElementById('backgroundLayer'),
+            lyricsText: document.getElementById('lyricsText'),
+            songTitle: document.getElementById('songTitle'),
+            songArtist: document.getElementById('songArtist'),
+            pageIndicator: document.getElementById('pageIndicator'),
+            header: document.getElementById('header'),
+            sidebar: document.getElementById('sidebar'),
+            overlay: document.getElementById('overlay'),
+            songList: document.getElementById('songList'),
+            closeSidebar: document.getElementById('closeSidebar'),
+            fileInput: document.getElementById('fileInput'),
+            settingsModal: document.getElementById('settingsModal'),
+            settingsOverlay: document.getElementById('settingsOverlay'),
+            closeSettings: document.getElementById('closeSettings'),
+            fontFamily: document.getElementById('fontFamily'),
+            fontSize: document.getElementById('fontSize'),
+            fontSizeValue: document.getElementById('fontSizeValue'),
+            lineHeight: document.getElementById('lineHeight'),
+            lineHeightValue: document.getElementById('lineHeightValue'),
+            boldText: document.getElementById('boldText'),
+            themeGrid: document.getElementById('themeGrid')
+        };
+
+        function loadFromStorage(key) {
+            try {
+                const stored = localStorage.getItem(key);
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+            } catch (e) {
+                console.warn('Failed to load from localStorage:', e);
+            }
+            return null;
+        }
+
+        function saveToStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) {
+                console.warn('Failed to save to localStorage:', e);
+            }
+        }
+
+        function loadSettings() {
+            const stored = loadFromStorage(SETTINGS_STORAGE_KEY);
+            if (stored) {
+                currentSettings = { ...defaultSettings, ...stored };
+            }
+            applySettings();
+        }
+
+        function saveSettings() {
+            clearTimeout(settingsSaveTimeout);
+            settingsSaveTimeout = setTimeout(() => {
+                saveToStorage(SETTINGS_STORAGE_KEY, currentSettings);
+            }, 300);
+        }
+
+        function applySettings() {
+            const root = document.documentElement;
+            root.style.setProperty('--lyrics-font-size', `${currentSettings.fontSize}rem`);
+            root.style.setProperty('--lyrics-font-family', currentSettings.fontFamily);
+            root.style.setProperty('--lyrics-line-height', currentSettings.lineHeight);
+            root.style.setProperty('--lyrics-font-weight', currentSettings.bold ? 'bold' : 'normal');
+
+            const theme = presetThemes[currentSettings.theme] || presetThemes['golden-hour'];
+            root.style.setProperty('--lyrics-text-color', theme.textColor);
+            root.style.setProperty('--lyrics-text-shadow', theme.textShadow);
+
+            const layer = elements.backgroundLayer;
+            layer.className = 'background-layer';
+            layer.classList.add(theme.backgroundClass);
+
+            if (theme.backgroundClass && theme.backgroundClass.startsWith('bg-')) {
+                layer.innerHTML = '';
+                for (let i = 0; i < 20; i++) {
+                    const span = document.createElement('span');
+                    span.className = 'particle';
+                    layer.appendChild(span);
+                }
+            } else {
+                layer.innerHTML = '';
+            }
+
+            if (elements.fontFamily) elements.fontFamily.value = currentSettings.fontFamily;
+            if (elements.fontSize) {
+                elements.fontSize.value = currentSettings.fontSize;
+                elements.fontSizeValue.textContent = `${currentSettings.fontSize}rem`;
+            }
+            if (elements.lineHeight) {
+                elements.lineHeight.value = currentSettings.lineHeight;
+                elements.lineHeightValue.textContent = currentSettings.lineHeight;
+            }
+            if (elements.boldText) {
+                elements.boldText.checked = currentSettings.bold;
+            }
+
+            document.querySelectorAll('.theme-thumb').forEach(thumb => {
+                thumb.classList.toggle('active', thumb.dataset.theme === currentSettings.theme);
+            });
+        }
+
+        function openSettings() {
+            elements.settingsModal.classList.add('open');
+            elements.settingsOverlay.classList.add('visible');
+        }
+
+        function toggleSettings() {
+            elements.settingsModal.classList.toggle('open');
+            elements.settingsOverlay.classList.toggle('visible');
+        }
+
+        function closeSettings() {
+            elements.settingsModal.classList.remove('open');
+            elements.settingsOverlay.classList.remove('visible');
+        }
+
+        function loadFiles(files) {
+            const jsonFiles = Array.from(files).filter(f => f.name.endsWith('.json'));
+            if (jsonFiles.length === 0) return;
+
+            let loadedCount = 0;
+            const newSongs = [];
+
+            jsonFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const song = JSON.parse(e.target.result);
+                        if (song.title && song.pages && Array.isArray(song.pages)) {
+                            newSongs.push(song);
+                        }
+                    } catch (err) {
+                        console.warn('Failed to parse:', file.name, err);
+                    }
+                    loadedCount++;
+                    if (loadedCount === jsonFiles.length) {
+                        if (newSongs.length > 0) {
+                            const wasEmpty = state.songs.length === 0;
+                            state.songs = [...state.songs, ...newSongs];
+                            saveToStorage(SONGS_STORAGE_KEY, state.songs);
+                            if (elements.welcomeScreen.style.display !== 'none') {
+                                initApp();
+                            } else {
+                                renderSongList();
+                                if (wasEmpty) {
+                                    loadSong(0);
+                                }
+                            }
+                        }
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        function initApp() {
+            elements.welcomeScreen.style.display = 'none';
+            elements.lyricsContainer.style.display = 'flex';
+            clearTimeout(state.cursorTimeout);
+            state.cursorTimeout = setTimeout(() => {
+                document.body.style.cursor = 'none';
+            }, 2000);
+            renderSongList();
+            loadSong(0);
+            setupEventListeners();
+        }
+
+        function setupFileInputListeners() {
+            elements.fileInput.addEventListener('change', e => {
+                if (e.target.files.length > 0) {
+                    loadFiles(e.target.files);
+                    e.target.value = '';
+                }
+            });
+        }
+
+        function setupSettingsListeners() {
+            elements.closeSettings.addEventListener('click', closeSettings);
+            elements.settingsOverlay.addEventListener('click', closeSettings);
+
+            elements.fontFamily.addEventListener('change', e => {
+                currentSettings.fontFamily = e.target.value;
+                applySettings();
+                saveSettings();
+            });
+
+            elements.fontSize.addEventListener('input', e => {
+                currentSettings.fontSize = parseFloat(e.target.value);
+                elements.fontSizeValue.textContent = `${currentSettings.fontSize}rem`;
+                applySettings();
+                saveSettings();
+            });
+
+            elements.lineHeight.addEventListener('input', e => {
+                currentSettings.lineHeight = parseFloat(e.target.value);
+                elements.lineHeightValue.textContent = currentSettings.lineHeight;
+                applySettings();
+                saveSettings();
+            });
+
+            elements.boldText.addEventListener('change', e => {
+                currentSettings.bold = e.target.checked;
+                applySettings();
+                saveSettings();
+            });
+
+            elements.themeGrid.addEventListener('click', e => {
+                const thumb = e.target.closest('.theme-thumb');
+                if (thumb) {
+                    currentSettings.theme = thumb.dataset.theme;
+                    applySettings();
+                    saveSettings();
+                }
+            });
+        }
+
+        function renderSongList() {
+            elements.songList.innerHTML = state.songs.map((song, i) => `
+                <div class="song-item ${i === state.currentSongIndex ? 'active' : ''}" data-index="${i}">
+                    <div class="song-item-info">
+                        <div class="song-item-title">${song.title}</div>
+                        <div class="song-item-artist">${song.artist || ''}</div>
+                    </div>
+                    <button class="song-item-delete" data-delete="${i}" title="Delete song">×</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteSong(index) {
+            state.songs.splice(index, 1);
+            saveToStorage(SONGS_STORAGE_KEY, state.songs);
+            if (state.songs.length === 0) {
+                state.currentSongIndex = 0;
+                state.currentPage = 0;
+                renderSongList();
+                elements.lyricsText.textContent = 'No songs loaded';
+                elements.songTitle.textContent = '';
+                elements.songArtist.textContent = '';
+                elements.pageIndicator.textContent = '';
+            } else {
+                if (state.currentSongIndex >= state.songs.length) {
+                    state.currentSongIndex = state.songs.length - 1;
+                }
+                loadSong(state.currentSongIndex);
+            }
+        }
+
+        function loadSong(index) {
+            const song = state.songs[index];
+            state.currentSongIndex = index;
+            state.currentPage = 0;
+            renderSongList();
+            renderPage();
+        }
+
+        function renderPage() {
+            const song = state.songs[state.currentSongIndex];
+            const page = song.pages[state.currentPage];
+
+            elements.lyricsText.textContent = page.text;
+            elements.songTitle.textContent = song.title;
+            elements.songArtist.textContent = song.artist || '';
+
+            const pageNum = state.currentPage + 1;
+            const totalPages = song.pages.length;
+            elements.pageIndicator.textContent = `${pageNum} / ${totalPages}`;
+        }
+
+        function nextPage() {
+            const song = state.songs[state.currentSongIndex];
+            if (state.currentPage < song.pages.length - 1) {
+                elements.lyricsText.classList.add('fade-out');
+                setTimeout(() => {
+                    state.currentPage++;
+                    renderPage();
+                    elements.lyricsText.classList.remove('fade-out');
+                }, 300);
+            }
+        }
+
+        function prevPage() {
+            if (state.currentPage > 0) {
+                elements.lyricsText.classList.add('fade-out');
+                setTimeout(() => {
+                    state.currentPage--;
+                    renderPage();
+                    elements.lyricsText.classList.remove('fade-out');
+                }, 300);
+            }
+        }
+
+        function toggleSidebar() {
+            const isOpen = elements.sidebar.classList.contains('open');
+            elements.sidebar.classList.toggle('open', !isOpen);
+            elements.overlay.classList.toggle('visible', !isOpen);
+        }
+
+        function closeSidebar() {
+            elements.sidebar.classList.remove('open');
+            elements.overlay.classList.remove('visible');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function showHeader() {
+            elements.header.classList.add('visible');
+            clearTimeout(state.headerTimeout);
+        }
+
+        function setupEventListeners() {
+            document.addEventListener('keydown', e => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                switch(e.key) {
+                    case 'ArrowRight':
+                    case ' ':
+                        e.preventDefault();
+                        nextPage();
+                        showHeader();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        prevPage();
+                        showHeader();
+                        break;
+                    case 't':
+                    case 'T':
+                        toggleSettings();
+                        break;
+                    case 's':
+                    case 'S':
+                        toggleSidebar();
+                        break;
+                    case 'f':
+                    case 'F':
+                        toggleFullscreen();
+                        break;
+                    case ']':
+                        if (state.currentSongIndex < state.songs.length - 1) {
+                            loadSong(state.currentSongIndex + 1);
+                            showHeader();
+                        }
+                        break;
+                    case '[':
+                        if (state.currentSongIndex > 0) {
+                            loadSong(state.currentSongIndex - 1);
+                            showHeader();
+                        }
+                        break;
+                    case 'x':
+                    case 'X':
+                        if (elements.sidebar.classList.contains('open') && state.songs.length > 0) {
+                            deleteSong(state.currentSongIndex);
+                        }
+                        break;
+                    case 'Escape':
+                        closeSidebar();
+                        closeSettings();
+                        break;
+                }
+            });
+
+            elements.lyricsContainer.addEventListener('click', e => {
+                if (e.target === elements.lyricsContainer || e.target === elements.lyricsText) {
+                    showHeader();
+                }
+            });
+
+            elements.songList.addEventListener('click', e => {
+                const deleteBtn = e.target.closest('.song-item-delete');
+                if (deleteBtn) {
+                    e.stopPropagation();
+                    const index = parseInt(deleteBtn.dataset.delete);
+                    deleteSong(index);
+                    return;
+                }
+                const item = e.target.closest('.song-item');
+                if (item) {
+                    loadSong(parseInt(item.dataset.index));
+                    closeSidebar();
+                }
+            });
+
+            elements.closeSidebar.addEventListener('click', closeSidebar);
+            elements.overlay.addEventListener('click', closeSidebar);
+        }
+
+        function init() {
+            setupFileInputListeners();
+            setupSettingsListeners();
+            setupCursorHide();
+            loadSettings();
+            document.addEventListener('keydown', e => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                if (e.key === 'a' || e.key === 'A') {
+                    elements.fileInput.click();
+                }
+            });
+            const stored = loadFromStorage(SONGS_STORAGE_KEY);
+            if (stored && stored.length > 0) {
+                state.songs = stored;
+                initApp();
+            }
+        }
+
+        function setupCursorHide() {
+            document.addEventListener('mousemove', () => {
+                document.body.style.cursor = 'auto';
+                clearTimeout(state.cursorTimeout);
+                state.cursorTimeout = setTimeout(() => {
+                    document.body.style.cursor = 'none';
+                }, 2000);
+            });
+
+            clearTimeout(state.cursorTimeout);
+            state.cursorTimeout = setTimeout(() => {
+                document.body.style.cursor = 'none';
+            }, 2000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
