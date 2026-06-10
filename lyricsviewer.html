@@ -12,10 +12,10 @@
         }
 
         :root {
-            --bg-color: #1a1a2e;
-            --text-color: #ffffff;
+            --bg-color: #f5f5f5;
+            --text-color: #1a1a2e;
             --accent-color: #3b82f6;
-            --hover-color: rgba(255, 255, 255, 0.1);
+            --hover-color: rgba(0, 0, 0, 0.1);
         }
 
         body {
@@ -69,11 +69,13 @@
         .song-title {
             font-size: 1.5rem;
             font-weight: 600;
+            color: white
         }
 
         .song-artist {
             font-size: 1rem;
             opacity: 0.7;
+            color: white
         }
 
         .lyrics-content {
@@ -191,6 +193,7 @@
 
         .song-item.active {
             background: var(--accent-color);
+            color: white;
         }
 
         .song-item-info {
@@ -258,50 +261,7 @@
             visibility: visible;
         }
 
-        .welcome-screen {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 100;
-        }
-
-        .welcome-screen h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .welcome-screen p {
-            margin-bottom: 10px;
-            opacity: 0.7;
-        }
-
-        .welcome-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 30px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .welcome-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
-        }
-
-        .welcome-hint {
-            margin-top: 30px;
-            font-size: 0.9rem;
-            opacity: 0.5;
-        }
+        
 
         .shortcuts-hint {
             position: fixed;
@@ -881,7 +841,7 @@
 
         /* ===== Bokeh 3 Effect - Golden Hour ===== */
         .bg-golden-hour {
-            background: linear-gradient(135deg, #0d0d16 0%, #4a3f6b 45%, #e6a86e 100%);
+            background: linear-gradient(135deg, #272742 0%, #4a3f6b 30%, #e6a86e 100%);
             overflow: hidden;
         }
 
@@ -957,7 +917,7 @@
 
         /* ===== Bokeh 5 Effect - Lavender ===== */
         .bg-lavender {
-            background: linear-gradient(135deg, #2d1b4e 0%, #7b4bb9 50%, #c4b5fd 100%);
+            background: linear-gradient(135deg, #120b20 0%, #6f36b9 50%, #c4b5fd 100%);
             overflow: hidden;
         }
 
@@ -1033,13 +993,9 @@
     </style>
 </head>
 <body>
-    <div class="welcome-screen" id="welcomeScreen">
-        <h1>Lyrics Viewer</h1>
-        <p>Display lyrics in fullscreen slides</p>
-        <p class="welcome-hint">Press <kbd>A</kbd> to upload songs</p>
-    </div>
+    
 
-    <div class="lyrics-container" id="lyricsContainer" style="display: none;">
+    <div class="lyrics-container" id="lyricsContainer">
         <div class="background-layer" id="backgroundLayer"></div>
         <div class="header" id="header">
             <div class="song-info">
@@ -1049,15 +1005,15 @@
         </div>
 
         <div class="lyrics-content">
-            <div class="lyrics-text" id="lyricsText">Sample lyrics text</div>
+            <div class="lyrics-text" id="lyricsText">No Songs Loaded...</div>
         </div>
 
         <div class="page-indicator" id="pageIndicator"></div>
 
         <div class="shortcuts-hint">
             <kbd>F</kbd> Fullscreen <kbd>A</kbd> Add Songs <kbd>S</kbd> Song List <kbd>X</kbd> Remove Song <kbd>T</kbd> Settings<br>
-            <kbd>←</kbd> <kbd>→</kbd> Navigate pages 
-            <kbd>[</kbd> Previous Song <kbd>]</kbd> Next Song
+            <kbd>←</kbd> <kbd>→</kbd> Navigate Pages 
+            <kbd>↑</kbd> <kbd>↓</kbd> Switch Song <kbd>[</kbd> <kbd>]</kbd> Switch Theme
         </div>
     </div>
 
@@ -1196,6 +1152,8 @@
             }
         };
 
+        const themeKeys = Object.keys(presetThemes);
+
         const defaultSettings = {
             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             fontSize: 8,
@@ -1208,7 +1166,6 @@
         let settingsSaveTimeout = null;
 
         const elements = {
-            welcomeScreen: document.getElementById('welcomeScreen'),
             lyricsContainer: document.getElementById('lyricsContainer'),
             backgroundLayer: document.getElementById('backgroundLayer'),
             lyricsText: document.getElementById('lyricsText'),
@@ -1351,13 +1308,9 @@
                             const wasEmpty = state.songs.length === 0;
                             state.songs = [...state.songs, ...newSongs];
                             saveToStorage(SONGS_STORAGE_KEY, state.songs);
-                            if (elements.welcomeScreen.style.display !== 'none') {
-                                initApp();
-                            } else {
-                                renderSongList();
-                                if (wasEmpty) {
-                                    loadSong(0);
-                                }
+                            renderSongList();
+                            if (wasEmpty) {
+                                loadSong(0);
                             }
                         }
                     }
@@ -1367,7 +1320,6 @@
         }
 
         function initApp() {
-            elements.welcomeScreen.style.display = 'none';
             elements.lyricsContainer.style.display = 'flex';
             clearTimeout(state.cursorTimeout);
             state.cursorTimeout = setTimeout(() => {
@@ -1375,7 +1327,6 @@
             }, 2000);
             renderSongList();
             loadSong(0);
-            setupEventListeners();
         }
 
         function setupFileInputListeners() {
@@ -1446,7 +1397,7 @@
                 state.currentSongIndex = 0;
                 state.currentPage = 0;
                 renderSongList();
-                elements.lyricsText.textContent = 'No songs loaded';
+                elements.lyricsText.textContent = 'No Songs Loaded';
                 elements.songTitle.textContent = '';
                 elements.songArtist.textContent = '';
                 elements.pageIndicator.textContent = '';
@@ -1462,6 +1413,10 @@
             const song = state.songs[index];
             state.currentSongIndex = index;
             state.currentPage = 0;
+            const otherThemes = themeKeys.filter(t => t !== currentSettings.theme);
+            currentSettings.theme = otherThemes[Math.floor(Math.random() * otherThemes.length)];
+            applySettings();
+            saveSettings();
             renderSongList();
             renderPage();
         }
@@ -1553,16 +1508,34 @@
                     case 'F':
                         toggleFullscreen();
                         break;
-                    case ']':
+                    case 'ArrowDown':
                         if (state.currentSongIndex < state.songs.length - 1) {
                             loadSong(state.currentSongIndex + 1);
                             showHeader();
                         }
                         break;
-                    case '[':
+                    case 'ArrowUp':
                         if (state.currentSongIndex > 0) {
                             loadSong(state.currentSongIndex - 1);
                             showHeader();
+                        }
+                        break;
+                    case ']':
+                    case '}':
+                        {
+                            const idx = themeKeys.indexOf(currentSettings.theme);
+                            currentSettings.theme = themeKeys[(idx + 1) % themeKeys.length];
+                            applySettings();
+                            saveSettings();
+                        }
+                        break;
+                    case '[':
+                    case '{':
+                        {
+                            const idx = themeKeys.indexOf(currentSettings.theme);
+                            currentSettings.theme = themeKeys[(idx - 1 + themeKeys.length) % themeKeys.length];
+                            applySettings();
+                            saveSettings();
                         }
                         break;
                     case 'x':
@@ -1614,6 +1587,7 @@
                     elements.fileInput.click();
                 }
             });
+            setupEventListeners();
             const stored = loadFromStorage(SONGS_STORAGE_KEY);
             if (stored && stored.length > 0) {
                 state.songs = stored;

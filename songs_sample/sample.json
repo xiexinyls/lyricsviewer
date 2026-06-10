@@ -1,0 +1,9 @@
+{
+  "title": "Song Title",
+  "artist": "Song Artist",
+  "pages": [
+    {"text": "Lyrics Line 1\nLyrics Line 2"},
+    {"text": "Lyrics Line 3\nLyrics Line 4"},
+    {"text": "Lyrics Line 5\nLyrics Line 6"}
+  ]
+}
