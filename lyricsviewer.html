@@ -15,6 +15,7 @@
             --bg-color: #f5f5f5;
             --text-color: #1a1a2e;
             --accent-color: #3b82f6;
+            --button-bg: #cccccc;
             --hover-color: rgba(0, 0, 0, 0.1);
         }
 
@@ -72,6 +73,12 @@
             color: white
         }
 
+        .song-title-num {
+            opacity: 0.5;
+            margin-right: 0.3em;
+            font-variant-numeric: tabular-nums;
+        }
+
         .song-artist {
             font-size: 1rem;
             opacity: 0.7;
@@ -111,10 +118,23 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
             font-size: 1rem;
             opacity: 0.6;
             z-index: 100;
             transition: opacity 0.3s;
+            text-align: center;
+            color: white;
+        }
+
+        .page-type {
+            font-size: 2.5rem;
+            opacity: 0.8;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .page-indicator:hover {
@@ -147,7 +167,7 @@
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
@@ -163,11 +183,26 @@
             width: 36px;
             height: 36px;
             border: none;
-            background: var(--hover-color);
+            background: var(--button-bg);
             color: var(--text-color);
             border-radius: 50%;
             cursor: pointer;
             font-size: 1.2rem;
+        }
+
+        .clear-all-btn {
+            padding: 6px 12px;
+            background:var(--button-bg);
+            border: none;
+            border-radius: 6px;
+            color:var(--text-color);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .clear-all-btn:hover {
+            background: var(--hover-color);
         }
 
         .song-list {
@@ -177,7 +212,7 @@
         }
 
         .song-item {
-            padding: 15px 20px;
+            padding: 8px;
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.2s;
@@ -208,6 +243,18 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .song-item-num {
+            display: inline-block;
+            min-width: 1.8em;
+            margin-right: 6px;
+            opacity: 0.5;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .song-item.active .song-item-num {
+            opacity: 0.85;
         }
 
         .song-item-artist {
@@ -545,228 +592,26 @@
             display: none;
         }
 
-        /* Background Theme Animations - Peaceful Multi-layer Effects */
-        
-        /* ===== Golden Glow - Warm ethereal light ===== */
-        .bg-golden-glow {
-            background: 
-                radial-gradient(ellipse at 20% 80%, rgba(255, 180, 80, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(255, 220, 150, 0.1) 0%, transparent 40%),
-                linear-gradient(175deg, #1a0f00 0%, #2d1800 40%, #1a0f00 100%);
-        }
-
-        .bg-golden-glow::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(ellipse at 50% 50%, rgba(255, 200, 100, 0.2) 0%, transparent 60%),
-                radial-gradient(ellipse at 30% 70%, rgba(255, 150, 50, 0.15) 0%, transparent 50%);
-            animation: goldenPulse calc(20s / var(--bg-speed, 1)) ease-in-out infinite;
-        }
-
-        .bg-golden-glow::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; right: -50%; bottom: -50%;
-            background: radial-gradient(circle at 50% 50%, rgba(255, 220, 150, 0.08) 0%, transparent 50%);
-            animation: goldenBreath calc(25s / var(--bg-speed, 1)) ease-in-out infinite;
-        }
-
-        @keyframes goldenPulse {
-            0%, 100% { opacity: 0.6; transform: scale(1) translateY(0); }
-            33% { opacity: 1; transform: scale(1.05) translateY(-5px); }
-            66% { opacity: 0.8; transform: scale(0.98) translateY(3px); }
-        }
-
-        @keyframes goldenBreath {
-            0%, 100% { opacity: 0.5; transform: scale(1.1); }
-            50% { opacity: 0.9; transform: scale(0.95); }
-        }
-
-        /* ===== Soft Aurora - Flowing northern lights ===== */
-        .bg-soft-aurora {
-            background: 
-                linear-gradient(135deg, #1a1a3e 0%, #2d2d5e 25%, #3d2d6e 50%, #2d2d5e 75%, #1a1a3e 100%);
-        }
-
-        .bg-soft-aurora::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; right: -100%; bottom: 0;
-            background: 
-                linear-gradient(90deg, 
-                    transparent 0%,
-                    rgba(102, 126, 234, 0.3) 25%,
-                    rgba(118, 75, 162, 0.4) 50%,
-                    rgba(102, 126, 234, 0.3) 75%,
-                    transparent 100%);
-            background-size: 200% 100%;
-            animation: auroraWave1 calc(30s / var(--bg-speed, 1)) linear infinite;
-            opacity: var(--bg-intensity, 0.5);
-        }
-
-        .bg-soft-aurora::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; right: -50%; bottom: -50%;
-            background: 
-                linear-gradient(45deg,
-                    transparent 0%,
-                    rgba(180, 130, 200, 0.15) 30%,
-                    rgba(100, 150, 220, 0.1) 50%,
-                    rgba(180, 130, 200, 0.15) 70%,
-                    transparent 100%);
-            background-size: 150% 150%;
-            animation: auroraWave2 calc(25s / var(--bg-speed, 1)) ease-in-out infinite;
-            animation-delay: calc(-10s / var(--bg-speed, 1));
-        }
-
-        @keyframes auroraWave1 {
-            0% { transform: translateX(-25%); }
-            100% { transform: translateX(25%); }
-        }
-
-        @keyframes auroraWave2 {
-            0%, 100% { opacity: 0.4; transform: translate(0, 0) rotate(0deg); }
-            33% { opacity: 0.8; transform: translate(5%, -5%) rotate(2deg); }
-            66% { opacity: 0.5; transform: translate(-3%, 3%) rotate(-1deg); }
-        }
-
-        /* ===== Gentle Stars - Peaceful night sky ===== */
-        .bg-gentle-stars {
-            background: linear-gradient(to bottom, #0a0a1a 0%, #151530 50%, #0a0a1a 100%);
-        }
-
-        .bg-gentle-stars::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image:
-                radial-gradient(1.5px 1.5px at 10% 20%, rgba(255,255,255,0.9) 0%, transparent 100%),
-                radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                radial-gradient(2px 2px at 40% 10%, rgba(255,240,200,0.8) 0%, transparent 100%),
-                radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                radial-gradient(1.5px 1.5px at 70% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                radial-gradient(2px 2px at 15% 65%, rgba(255,240,200,0.6) 0%, transparent 100%),
-                radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                radial-gradient(1.5px 1.5px at 60% 70%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                radial-gradient(1px 1px at 80% 85%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                radial-gradient(2px 2px at 50% 50%, rgba(255,240,200,0.5) 0%, transparent 100%),
-                radial-gradient(1px 1px at 95% 40%, rgba(255,255,255,0.8) 0%, transparent 100%);
-            animation: starsTwinkle calc(8s / var(--bg-speed, 1)) ease-in-out infinite;
-            opacity: var(--bg-intensity, 0.6);
-        }
-
-        .bg-gentle-stars::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(ellipse at 50% 100%, rgba(100, 100, 150, 0.1) 0%, transparent 60%);
-            animation: starsGlow calc(15s / var(--bg-speed, 1)) ease-in-out infinite;
-        }
-
-        @keyframes starsTwinkle {
-            0%, 100% { opacity: var(--bg-intensity, 0.6); }
-            50% { opacity: calc(var(--bg-intensity, 0.6) * 0.4); }
-        }
-
-        @keyframes starsGlow {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
-        }
-
-        /* ===== Warm Mist - Soft flowing fog ===== */
-        .bg-warm-mist {
-            background: 
-                linear-gradient(to bottom, #d4c4c4 0%, #a8b8c8 50%, #d4c4c4 100%);
-        }
-
-        .bg-warm-mist::before {
-            content: '';
-            position: absolute;
-            top: -100%; left: -100%; right: -100%; bottom: -100%;
-            background: 
-                radial-gradient(ellipse at 20% 30%, rgba(255, 250, 245, 0.6) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 60%, rgba(255, 245, 235, 0.4) 0%, transparent 40%),
-                radial-gradient(ellipse at 50% 80%, rgba(240, 230, 220, 0.5) 0%, transparent 45%);
-            animation: mistFlow1 calc(25s / var(--bg-speed, 1)) ease-in-out infinite;
-            opacity: var(--bg-intensity, 0.6);
-        }
-
-        .bg-warm-mist::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; right: -50%; bottom: -50%;
-            background: 
-                radial-gradient(ellipse at 80% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 40%),
-                radial-gradient(ellipse at 30% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 35%);
-            animation: mistFlow2 calc(20s / var(--bg-speed, 1)) ease-in-out infinite;
-            animation-delay: calc(-8s / var(--bg-speed, 1));
-        }
-
-        @keyframes mistFlow1 {
-            0%, 100% { transform: translate(0, 0) scale(1); opacity: var(--bg-intensity, 0.6); }
-            25% { transform: translate(5%, 3%) scale(1.05); opacity: calc(var(--bg-intensity, 0.6) * 1.2); }
-            50% { transform: translate(-3%, 5%) scale(0.98); opacity: var(--bg-intensity, 0.6); }
-            75% { transform: translate(3%, -2%) scale(1.02); opacity: calc(var(--bg-intensity, 0.6) * 0.8); }
-        }
-
-        @keyframes mistFlow2 {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.4; }
-            33% { transform: translate(-5%, 5%) rotate(-3deg); opacity: 0.6; }
-            66% { transform: translate(5%, -3%) rotate(3deg); opacity: 0.35; }
-        }
-
-        /* ===== Divine Light - Radiant heavenly glow ===== */
-        .bg-divine-light {
-            background: 
-                radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-                linear-gradient(to bottom, #e8e0f0 0%, #c8b8e8 30%, #e8e0f0 100%);
-        }
-
-        .bg-divine-light::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; right: -50%; bottom: 0;
-            background: 
-                radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.5) 0%, transparent 40%),
-                radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 30%),
-                radial-gradient(ellipse at 70% 25%, rgba(255, 255, 255, 0.3) 0%, transparent 30%);
-            animation: divineRays calc(20s / var(--bg-speed, 1)) ease-in-out infinite;
-        }
-
-        .bg-divine-light::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
-            animation: divineGlow calc(15s / var(--bg-speed, 1)) ease-in-out infinite;
-            animation-delay: calc(-5s / var(--bg-speed, 1));
-        }
-
-        @keyframes divineRays {
-            0%, 100% { opacity: 0.5; transform: translateY(0) scale(1); }
-            50% { opacity: 0.9; transform: translateY(-10px) scale(1.1); }
-        }
-
-        @keyframes divineGlow {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-        }
-
         /* ===== Bokeh Effect - Beautiful floating lights ===== */
+        .bg-purple-dream,
+        .theme-thumb[data-theme="purple-dream"] {
+            --bg-purple-dream-1: #583C87;
+            --bg-purple-dream-2: #E45A84;
+            --bg-purple-dream-3: #FFACAC;
+            --p-purple-dream-1: #583C87;
+            --p-purple-dream-2: #FFACAC;
+            --p-purple-dream-3: #E45A84;
+        }
+
         .bg-purple-dream {
-            background: linear-gradient(135deg, #583C87 0%, #E45A84 50%, #FFACAC 100%);
+            background: linear-gradient(135deg, var(--bg-purple-dream-1) 0%, var(--bg-purple-dream-2) 50%, var(--bg-purple-dream-3) 100%);
             overflow: hidden;
         }
 
         .bg-purple-dream .particle {
-            width: 30vmin;
-            height: 30vmin;
-            border-radius: 30vmin;
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
             backface-visibility: hidden;
             position: absolute;
             animation-name: bokehMove;
@@ -774,26 +619,30 @@
             animation-iteration-count: infinite;
         }
 
-        .bg-purple-dream .particle:nth-child(1) { color: #583C87; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(2) { color: #FFACAC; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(3) { color: #E45A84; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(4) { color: #583C87; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(5) { color: #FFACAC; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(6) { color: #E45A84; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(7) { color: #583C87; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(8) { color: #FFACAC; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(9) { color: #E45A84; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(10) { color: #583C87; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(11) { color: #FFACAC; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(12) { color: #E45A84; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(13) { color: #583C87; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(14) { color: #FFACAC; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(15) { color: #E45A84; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(16) { color: #583C87; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(17) { color: #FFACAC; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(18) { color: #E45A84; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(19) { color: #583C87; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-purple-dream .particle:nth-child(20) { color: #FFACAC; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(3n+1) { color: var(--p-purple-dream-1); }
+        .bg-purple-dream .particle:nth-child(3n+2) { color: var(--p-purple-dream-2); }
+        .bg-purple-dream .particle:nth-child(3n)   { color: var(--p-purple-dream-3); }
+
+        .bg-purple-dream .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-purple-dream .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
 
         @keyframes bokehMove {
             100% {
@@ -802,15 +651,25 @@
         }
 
         /* ===== Bokeh 2 Effect - Cotton Candy floating lights ===== */
+        .bg-cotton-candy,
+        .theme-thumb[data-theme="cotton-candy"] {
+            --bg-cotton-candy-1: #152a62;
+            --bg-cotton-candy-2: #3b82f6;
+            --bg-cotton-candy-3: #f472b6;
+            --p-cotton-candy-1: #3b82f6;
+            --p-cotton-candy-2: #f472b6;
+            --p-cotton-candy-3: #93c5fd;
+        }
+
         .bg-cotton-candy {
-            background: linear-gradient(135deg, #152a62 0%, #3b82f6 50%, #f472b6 100%);
+            background: linear-gradient(135deg, var(--bg-cotton-candy-1) 0%, var(--bg-cotton-candy-2) 50%, var(--bg-cotton-candy-3) 100%);
             overflow: hidden;
         }
 
         .bg-cotton-candy .particle {
-            width: 30vmin;
-            height: 30vmin;
-            border-radius: 30vmin;
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
             backface-visibility: hidden;
             position: absolute;
             animation-name: bokehMove;
@@ -818,37 +677,51 @@
             animation-iteration-count: infinite;
         }
 
-        .bg-cotton-candy .particle:nth-child(1) { color: #3b82f6; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(2) { color: #f472b6; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(3) { color: #f472b6; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(4) { color: #3b82f6; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(5) { color: #93c5fd; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(6) { color: #f472b6; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(7) { color: #3b82f6; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(8) { color: #93c5fd; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(9) { color: #f472b6; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(10) { color: #3b82f6; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(11) { color: #93c5fd; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(12) { color: #f472b6; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(13) { color: #f472b6; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(14) { color: #93c5fd; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(15) { color: #f472b6; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(16) { color: #3b82f6; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(17) { color: #93c5fd; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(18) { color: #f472b6; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(19) { color: #3b82f6; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-cotton-candy .particle:nth-child(20) { color: #93c5fd; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(3n+1) { color: var(--p-cotton-candy-1); }
+        .bg-cotton-candy .particle:nth-child(3n+2) { color: var(--p-cotton-candy-2); }
+        .bg-cotton-candy .particle:nth-child(3n)   { color: var(--p-cotton-candy-3); }
+
+        .bg-cotton-candy .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-cotton-candy .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
 
         /* ===== Bokeh 3 Effect - Golden Hour ===== */
+        .bg-golden-hour,
+        .theme-thumb[data-theme="golden-hour"] {
+            --bg-golden-hour-1: #272742;
+            --bg-golden-hour-2: #4a3f6b;
+            --bg-golden-hour-3: #e6a86e;
+            --p-golden-hour-1: #f59e0b;
+            --p-golden-hour-2: #fbbf24;
+            --p-golden-hour-3: #f97316;
+        }
+
         .bg-golden-hour {
-            background: linear-gradient(135deg, #272742 0%, #4a3f6b 30%, #e6a86e 100%);
+            background: linear-gradient(135deg, var(--bg-golden-hour-1) 0%, var(--bg-golden-hour-2) 30%, var(--bg-golden-hour-3) 100%);
             overflow: hidden;
         }
 
         .bg-golden-hour .particle {
-            width: 30vmin;
-            height: 30vmin;
-            border-radius: 30vmin;
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
             backface-visibility: hidden;
             position: absolute;
             animation-name: bokehMove;
@@ -856,37 +729,51 @@
             animation-iteration-count: infinite;
         }
 
-        .bg-golden-hour .particle:nth-child(1) { color: #f59e0b; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(2) { color: #fbbf24; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(3) { color: #f97316; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(4) { color: #f59e0b; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(5) { color: #fbbf24; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(6) { color: #f97316; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(7) { color: #f59e0b; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(8) { color: #fbbf24; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(9) { color: #f97316; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(10) { color: #f59e0b; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(11) { color: #fbbf24; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(12) { color: #f97316; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(13) { color: #f59e0b; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(14) { color: #fbbf24; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(15) { color: #f97316; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(16) { color: #f59e0b; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(17) { color: #fbbf24; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(18) { color: #f97316; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(19) { color: #f59e0b; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-golden-hour .particle:nth-child(20) { color: #fbbf24; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(3n+1) { color: var(--p-golden-hour-1); }
+        .bg-golden-hour .particle:nth-child(3n+2) { color: var(--p-golden-hour-2); }
+        .bg-golden-hour .particle:nth-child(3n)   { color: var(--p-golden-hour-3); }
+
+        .bg-golden-hour .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-golden-hour .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
 
         /* ===== Bokeh 4 Effect - Ocean Deep ===== */
+        .bg-ocean-deep,
+        .theme-thumb[data-theme="ocean-deep"] {
+            --bg-ocean-deep-1: #0f0c29;
+            --bg-ocean-deep-2: #302b63;
+            --bg-ocean-deep-3: #18b5b7;
+            --p-ocean-deep-1: #06b6d4;
+            --p-ocean-deep-2: #22d3ee;
+            --p-ocean-deep-3: #3b82f6;
+        }
+
         .bg-ocean-deep {
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #209cff 100%);
+            background: linear-gradient(135deg, var(--bg-ocean-deep-1) 0%, var(--bg-ocean-deep-2) 50%, var(--bg-ocean-deep-3) 100%);
             overflow: hidden;
         }
 
         .bg-ocean-deep .particle {
-            width: 30vmin;
-            height: 30vmin;
-            border-radius: 30vmin;
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
             backface-visibility: hidden;
             position: absolute;
             animation-name: bokehMove;
@@ -894,37 +781,51 @@
             animation-iteration-count: infinite;
         }
 
-        .bg-ocean-deep .particle:nth-child(1) { color: #06b6d4; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(2) { color: #22d3ee; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(3) { color: #3b82f6; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(4) { color: #06b6d4; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(5) { color: #22d3ee; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(6) { color: #3b82f6; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(7) { color: #06b6d4; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(8) { color: #22d3ee; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(9) { color: #3b82f6; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(10) { color: #06b6d4; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(11) { color: #22d3ee; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(12) { color: #3b82f6; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(13) { color: #06b6d4; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(14) { color: #22d3ee; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(15) { color: #3b82f6; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(16) { color: #06b6d4; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(17) { color: #22d3ee; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(18) { color: #3b82f6; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(19) { color: #06b6d4; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-ocean-deep .particle:nth-child(20) { color: #22d3ee; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(3n+1) { color: var(--p-ocean-deep-1); }
+        .bg-ocean-deep .particle:nth-child(3n+2) { color: var(--p-ocean-deep-2); }
+        .bg-ocean-deep .particle:nth-child(3n)   { color: var(--p-ocean-deep-3); }
+
+        .bg-ocean-deep .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-ocean-deep .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
 
         /* ===== Bokeh 5 Effect - Lavender ===== */
+        .bg-lavender,
+        .theme-thumb[data-theme="lavender"] {
+            --bg-lavender-1: #120b20;
+            --bg-lavender-2: #6f36b9;
+            --bg-lavender-3: #c4b5fd;
+            --p-lavender-1: #a78bfa;
+            --p-lavender-2: #c4b5fd;
+            --p-lavender-3: #8b5cf6;
+        }
+
         .bg-lavender {
-            background: linear-gradient(135deg, #120b20 0%, #6f36b9 50%, #c4b5fd 100%);
+            background: linear-gradient(135deg, var(--bg-lavender-1) 0%, var(--bg-lavender-2) 50%, var(--bg-lavender-3) 100%);
             overflow: hidden;
         }
 
         .bg-lavender .particle {
-            width: 30vmin;
-            height: 30vmin;
-            border-radius: 30vmin;
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
             backface-visibility: hidden;
             position: absolute;
             animation-name: bokehMove;
@@ -932,37 +833,51 @@
             animation-iteration-count: infinite;
         }
 
-        .bg-lavender .particle:nth-child(1) { color: #a78bfa; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(2) { color: #c4b5fd; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(3) { color: #8b5cf6; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(4) { color: #a78bfa; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(5) { color: #c4b5fd; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(6) { color: #8b5cf6; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(7) { color: #a78bfa; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(8) { color: #c4b5fd; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(9) { color: #8b5cf6; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(10) { color: #a78bfa; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(11) { color: #c4b5fd; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(12) { color: #8b5cf6; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(13) { color: #a78bfa; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(14) { color: #c4b5fd; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(15) { color: #8b5cf6; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(16) { color: #a78bfa; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(17) { color: #c4b5fd; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(18) { color: #8b5cf6; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(19) { color: #a78bfa; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-lavender .particle:nth-child(20) { color: #c4b5fd; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(3n+1) { color: var(--p-lavender-1); }
+        .bg-lavender .particle:nth-child(3n+2) { color: var(--p-lavender-2); }
+        .bg-lavender .particle:nth-child(3n)   { color: var(--p-lavender-3); }
+
+        .bg-lavender .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-lavender .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
 
         /* ===== Bokeh 6 Effect - Sunset ===== */
+        .bg-sunset,
+        .theme-thumb[data-theme="sunset"] {
+            --bg-sunset-1: #1a0a2e;
+            --bg-sunset-2: #c2410c;
+            --bg-sunset-3: #fdba74;
+            --p-sunset-1: #fb923c;
+            --p-sunset-2: #fdba74;
+            --p-sunset-3: #f97316;
+        }
+
         .bg-sunset {
-            background: linear-gradient(135deg, #1a0a2e 0%, #c2410c 50%, #fdba74 100%);
+            background: linear-gradient(135deg, var(--bg-sunset-1) 0%, var(--bg-sunset-2) 50%, var(--bg-sunset-3) 100%);
             overflow: hidden;
         }
 
         .bg-sunset .particle {
-            width: 30vmin;
-            height: 30vmin;
-            border-radius: 30vmin;
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
             backface-visibility: hidden;
             position: absolute;
             animation-name: bokehMove;
@@ -970,26 +885,186 @@
             animation-iteration-count: infinite;
         }
 
-        .bg-sunset .particle:nth-child(1) { color: #fb923c; top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(2) { color: #fdba74; top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(3) { color: #f97316; top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(4) { color: #fb923c; top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(5) { color: #fdba74; top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(6) { color: #f97316; top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(7) { color: #fb923c; top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(8) { color: #fdba74; top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(9) { color: #f97316; top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(10) { color: #fb923c; top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(11) { color: #fdba74; top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(12) { color: #f97316; top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(13) { color: #fb923c; top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(14) { color: #fdba74; top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(15) { color: #f97316; top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(16) { color: #fb923c; top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(17) { color: #fdba74; top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(18) { color: #f97316; top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(19) { color: #fb923c; top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
-        .bg-sunset .particle:nth-child(20) { color: #fdba74; top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(3n+1) { color: var(--p-sunset-1); }
+        .bg-sunset .particle:nth-child(3n+2) { color: var(--p-sunset-2); }
+        .bg-sunset .particle:nth-child(3n)   { color: var(--p-sunset-3); }
+
+        .bg-sunset .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-sunset .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        /* ===== Rose Gold - Warm rosy metallic ===== */
+        .bg-rose-gold,
+        .theme-thumb[data-theme="rose-gold"] {
+            --bg-rose-gold-1: #2d1a1a;
+            --bg-rose-gold-2: #8b3a3a;
+            --bg-rose-gold-3: #e8b4b4;
+            --p-rose-gold-1: #e8b4b4;
+            --p-rose-gold-2: #d4a4a4;
+            --p-rose-gold-3: #c49090;
+        }
+
+        .bg-rose-gold {
+            background: linear-gradient(135deg, var(--bg-rose-gold-1) 0%, var(--bg-rose-gold-2) 50%, var(--bg-rose-gold-3) 100%);
+            overflow: hidden;
+        }
+
+        .bg-rose-gold .particle {
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-rose-gold .particle:nth-child(3n+1) { color: var(--p-rose-gold-1); }
+        .bg-rose-gold .particle:nth-child(3n+2) { color: var(--p-rose-gold-2); }
+        .bg-rose-gold .particle:nth-child(3n)   { color: var(--p-rose-gold-3); }
+
+        .bg-rose-gold .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-rose-gold .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        /* ===== Arctic - Icy blues ===== */
+        .bg-arctic,
+        .theme-thumb[data-theme="arctic"] {
+            --bg-arctic-1: #0a1628;
+            --bg-arctic-2: #1a3a5c;
+            --bg-arctic-3: #a8d4f0;
+            --p-arctic-1: #a8d4f0;
+            --p-arctic-2: #87ceeb;
+            --p-arctic-3: #b0e0e6;
+        }
+
+        .bg-arctic {
+            background: linear-gradient(135deg, var(--bg-arctic-1) 0%, var(--bg-arctic-2) 50%, var(--bg-arctic-3) 100%);
+            overflow: hidden;
+        }
+
+        .bg-arctic .particle {
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-arctic .particle:nth-child(3n+1) { color: var(--p-arctic-1); }
+        .bg-arctic .particle:nth-child(3n+2) { color: var(--p-arctic-2); }
+        .bg-arctic .particle:nth-child(3n)   { color: var(--p-arctic-3); }
+
+        .bg-arctic .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-arctic .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+
+        /* ===== skyblue - blues ===== */
+        .bg-skyblue,
+        .theme-thumb[data-theme="skyblue"] {
+            --bg-skyblue-1: #082936;
+            --bg-skyblue-2: #1b80a8;
+            --bg-skyblue-3: #54b5dc;
+            --p-skyblue-1: #bfeafa;
+            --p-skyblue-2: #62c1e5;
+            --p-skyblue-3: #1c96c5;
+        }
+
+        .bg-skyblue {
+            background: linear-gradient(135deg, var(--bg-skyblue-1) 0%, var(--bg-skyblue-2) 50%, var(--bg-skyblue-3) 100%);
+            overflow: hidden;
+        }
+
+        .bg-skyblue .particle {
+            width: 36vmin;
+            height: 36vmin;
+            border-radius: 36vmin;
+            backface-visibility: hidden;
+            position: absolute;
+            animation-name: bokehMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .bg-skyblue .particle:nth-child(3n+1) { color: var(--p-skyblue-1); }
+        .bg-skyblue .particle:nth-child(3n+2) { color: var(--p-skyblue-2); }
+        .bg-skyblue .particle:nth-child(3n)   { color: var(--p-skyblue-3); }
+
+        .bg-skyblue .particle:nth-child(1) { top: 12%; left: 45%; animation-duration: 44.8s; animation-delay: -3.5s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(2) { top: 67%; left: 23%; animation-duration: 34s; animation-delay: -2.1s; transform-origin: -20vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(3) { top: 34%; left: 78%; animation-duration: 57.2s; animation-delay: -6.8s; transform-origin: 10vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(4) { top: 89%; left: 56%; animation-duration: 38.8s; animation-delay: -1.2s; transform-origin: -25vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(5) { top: 5%; left: 91%; animation-duration: 51.2s; animation-delay: -9.4s; transform-origin: 20vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(6) { top: 45%; left: 8%; animation-duration: 42s; animation-delay: -4.6s; transform-origin: -15vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(7) { top: 78%; left: 34%; animation-duration: 52.4s; animation-delay: -7.9s; transform-origin: 5vw 25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(8) { top: 23%; left: 67%; animation-duration: 31.2s; animation-delay: -0.8s; transform-origin: -10vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(9) { top: 56%; left: 89%; animation-duration: 60.8s; animation-delay: -5.3s; transform-origin: 25vw -10vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(10) { top: 3%; left: 15%; animation-duration: 47.6s; animation-delay: -8.2s; transform-origin: -20vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(11) { top: 71%; left: 52%; animation-duration: 37.6s; animation-delay: -2.7s; transform-origin: 15vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(12) { top: 18%; left: 3%; animation-duration: 50.4s; animation-delay: -3.9s; transform-origin: -5vw 30vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(13) { top: 92%; left: 77%; animation-duration: 35.6s; animation-delay: -6.1s; transform-origin: 10vw -20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(14) { top: 41%; left: 41%; animation-duration: 58.8s; animation-delay: -1.5s; transform-origin: -15vw 5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(15) { top: 6%; left: 63%; animation-duration: 40.4s; animation-delay: -7.3s; transform-origin: 20vw 15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(16) { top: 84%; left: 2%; animation-duration: 54s; animation-delay: -4.8s; transform-origin: -25vw -15vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(17) { top: 29%; left: 95%; animation-duration: 36.8s; animation-delay: -0.3s; transform-origin: 5vw -25vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(18) { top: 63%; left: 19%; animation-duration: 47.2s; animation-delay: -5.9s; transform-origin: -10vw 20vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(19) { top: 47%; left: 74%; animation-duration: 33.2s; animation-delay: -2.4s; transform-origin: 15vw -5vh; box-shadow: 60vmin 0 20vmin currentColor; }
+        .bg-skyblue .particle:nth-child(20) { top: 15%; left: 28%; animation-duration: 63.2s; animation-delay: -8.7s; transform-origin: -20vw 10vh; box-shadow: 60vmin 0 20vmin currentColor; }
     </style>
 </head>
 <body>
@@ -1025,6 +1100,9 @@
             <span class="sidebar-title">Songs</span>
             <button class="close-btn" id="closeSidebar">×</button>
         </div>
+        <div class="sidebar-header">
+            <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+        </div>
         <div class="song-list" id="songList"></div>
     </div>
 
@@ -1038,28 +1116,40 @@
                 <div class="section-title">Theme</div>
                 <div class="theme-grid" id="themeGrid">
                     <div class="theme-thumb" data-theme="golden-hour" title="Golden Hour">
-                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #1a1a2e 0%, #4a3f6b 50%, #e6a86e 100%);"></div>
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-golden-hour-1) 0%, var(--bg-golden-hour-2) 30%, var(--bg-golden-hour-3) 100%);"></div>
                         <div class="theme-thumb-name">Golden Hour</div>
                     </div>
                     <div class="theme-thumb" data-theme="ocean-deep" title="Ocean Deep">
-                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #209cff 100%);"></div>
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-ocean-deep-1) 0%, var(--bg-ocean-deep-2) 50%, var(--bg-ocean-deep-3) 100%);"></div>
                         <div class="theme-thumb-name">Ocean Deep</div>
                     </div>
                     <div class="theme-thumb" data-theme="purple-dream" title="Purple Dream">
-                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #583C87 0%, #E45A84 50%, #FFACAC 100%);"></div>
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-purple-dream-1) 0%, var(--bg-purple-dream-2) 50%, var(--bg-purple-dream-3) 100%);"></div>
                         <div class="theme-thumb-name">Purple Dream</div>
                     </div>
+                    <div class="theme-thumb" data-theme="arctic" title="Arctic">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-arctic-1) 0%, var(--bg-arctic-2) 50%, var(--bg-arctic-3) 100%);"></div>
+                        <div class="theme-thumb-name">Arctic</div>
+                    </div>
                     <div class="theme-thumb" data-theme="cotton-candy" title="Cotton Candy">
-                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #f472b6 100%);"></div>
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-cotton-candy-1) 0%, var(--bg-cotton-candy-2) 50%, var(--bg-cotton-candy-3) 100%);"></div>
                         <div class="theme-thumb-name">Cotton Candy</div>
                     </div>
                     <div class="theme-thumb" data-theme="lavender" title="Lavender">
-                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #2d1b4e 0%, #7b4bb9 50%, #c4b5fd 100%);"></div>
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-lavender-1) 0%, var(--bg-lavender-2) 50%, var(--bg-lavender-3) 100%);"></div>
                         <div class="theme-thumb-name">Lavender</div>
                     </div>
                     <div class="theme-thumb" data-theme="sunset" title="Sunset">
-                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, #1a0a2e 0%, #c2410c 50%, #fdba74 100%);"></div>
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-sunset-1) 0%, var(--bg-sunset-2) 50%, var(--bg-sunset-3) 100%);"></div>
                         <div class="theme-thumb-name">Sunset</div>
+                    </div>
+                    <div class="theme-thumb" data-theme="rose-gold" title="Rose Gold">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-rose-gold-1) 0%, var(--bg-rose-gold-2) 50%, var(--bg-rose-gold-3) 100%);"></div>
+                        <div class="theme-thumb-name">Rose Gold</div>
+                    </div>
+                    <div class="theme-thumb" data-theme="skyblue" title="skyblue">
+                        <div class="theme-thumb-inner" style="background: linear-gradient(135deg, var(--bg-skyblue-1) 0%, var(--bg-skyblue-2) 50%, var(--bg-skyblue-3) 100%);"></div>
+                        <div class="theme-thumb-name">Sky Blue</div>
                     </div>
                 </div>
             </div>
@@ -1135,6 +1225,11 @@
                 textShadow: textShadow_sel,
                 backgroundClass: 'bg-purple-dream'
             },
+            'arctic': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-arctic'
+            },
             'cotton-candy': {
                 textColor: textColor_sel,
                 textShadow: textShadow_sel,
@@ -1149,6 +1244,16 @@
                 textColor: textColor_sel,
                 textShadow: textShadow_sel,
                 backgroundClass: 'bg-sunset'
+            },
+            'rose-gold': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-rose-gold'
+            },
+            'skyblue': {
+                textColor: textColor_sel,
+                textShadow: textShadow_sel,
+                backgroundClass: 'bg-skyblue'
             }
         };
 
@@ -1177,6 +1282,7 @@
             overlay: document.getElementById('overlay'),
             songList: document.getElementById('songList'),
             closeSidebar: document.getElementById('closeSidebar'),
+            clearAllBtn: document.getElementById('clearAllBtn'),
             fileInput: document.getElementById('fileInput'),
             settingsModal: document.getElementById('settingsModal'),
             settingsOverlay: document.getElementById('settingsOverlay'),
@@ -1282,6 +1388,9 @@
         function closeSettings() {
             elements.settingsModal.classList.remove('open');
             elements.settingsOverlay.classList.remove('visible');
+            if (document.activeElement && document.activeElement !== document.body) {
+                document.activeElement.blur();
+            }
         }
 
         function loadFiles(files) {
@@ -1382,12 +1491,17 @@
             elements.songList.innerHTML = state.songs.map((song, i) => `
                 <div class="song-item ${i === state.currentSongIndex ? 'active' : ''}" data-index="${i}">
                     <div class="song-item-info">
-                        <div class="song-item-title">${song.title}</div>
+                        <div class="song-item-title"><span class="song-item-num">${i + 1}.</span>${song.title}</div>
                         <div class="song-item-artist">${song.artist || ''}</div>
                     </div>
                     <button class="song-item-delete" data-delete="${i}" title="Delete song">×</button>
                 </div>
             `).join('');
+
+            const activeItem = elements.songList.querySelector('.song-item.active');
+            if (activeItem) {
+                activeItem.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }
         }
 
         function deleteSong(index) {
@@ -1397,7 +1511,7 @@
                 state.currentSongIndex = 0;
                 state.currentPage = 0;
                 renderSongList();
-                elements.lyricsText.textContent = 'No Songs Loaded';
+                elements.lyricsText.innerHTML = 'No Songs Loaded...';
                 elements.songTitle.textContent = '';
                 elements.songArtist.textContent = '';
                 elements.pageIndicator.textContent = '';
@@ -1407,6 +1521,18 @@
                 }
                 loadSong(state.currentSongIndex);
             }
+        }
+
+        function clearAllSongs() {
+            state.songs = [];
+            state.currentSongIndex = 0;
+            state.currentPage = 0;
+            saveToStorage(SONGS_STORAGE_KEY, state.songs);
+            renderSongList();
+            elements.lyricsText.innerHTML = 'No Songs Loaded...';
+            elements.songTitle.textContent = '';
+            elements.songArtist.textContent = '';
+            elements.pageIndicator.textContent = '';
         }
 
         function loadSong(index) {
@@ -1425,13 +1551,14 @@
             const song = state.songs[state.currentSongIndex];
             const page = song.pages[state.currentPage];
 
-            elements.lyricsText.textContent = page.text;
-            elements.songTitle.textContent = song.title;
+            elements.lyricsText.innerHTML = page.text;
+            elements.songTitle.innerHTML = `<span class="song-title-num">${state.currentSongIndex + 1}.</span>${song.title}`;
             elements.songArtist.textContent = song.artist || '';
 
             const pageNum = state.currentPage + 1;
             const totalPages = song.pages.length;
-            elements.pageIndicator.textContent = `${pageNum} / ${totalPages}`;
+            const typeHtml = page.type ? `<span class="page-type">${page.type}</span>` : '';
+            elements.pageIndicator.innerHTML = `${typeHtml}<span class="page-num">${pageNum} / ${totalPages}</span>`;
         }
 
         function nextPage() {
@@ -1574,6 +1701,7 @@
 
             elements.closeSidebar.addEventListener('click', closeSidebar);
             elements.overlay.addEventListener('click', closeSidebar);
+            elements.clearAllBtn.addEventListener('click', clearAllSongs);
         }
 
         function init() {
