@@ -131,10 +131,12 @@
         }
 
         .page-type {
-            font-size: 2.5rem;
+            font-size: 2rem;
+            font-weight: bold;
             opacity: 0.8;
             letter-spacing: 0.05em;
             text-transform: uppercase;
+            text-shadow: var(--lyrics-text-shadow);
         }
 
         .page-indicator:hover {
@@ -969,7 +971,7 @@
             --bg-arctic-2: #1a3a5c;
             --bg-arctic-3: #a8d4f0;
             --p-arctic-1: #a8d4f0;
-            --p-arctic-2: #87ceeb;
+            --p-arctic-2: #5c9eb8;
             --p-arctic-3: #b0e0e6;
         }
 
@@ -1207,7 +1209,7 @@
         const SETTINGS_STORAGE_KEY = 'lyrics-viewer-settings';
 
         const textColor_sel = '#ffffff';
-        const textShadow_sel = '1px 1px 12px rgba(0,0,0,0.7)';
+        const textShadow_sel = '1px 1px 10px rgba(0,0,0,0.7)';
 
         const presetThemes = {
             'golden-hour': {
