@@ -759,10 +759,10 @@
         /* ===== Bokeh 4 Effect - Ocean Deep ===== */
         .bg-ocean-deep,
         .theme-thumb[data-theme="ocean-deep"] {
-            --bg-ocean-deep-1: #0f0c29;
-            --bg-ocean-deep-2: #302b63;
+            --bg-ocean-deep-1: #132524;
+            --bg-ocean-deep-2: #293462;
             --bg-ocean-deep-3: #18b5b7;
-            --p-ocean-deep-1: #06b6d4;
+            --p-ocean-deep-1: #03798e;
             --p-ocean-deep-2: #22d3ee;
             --p-ocean-deep-3: #3b82f6;
         }
@@ -812,10 +812,10 @@
         .bg-lavender,
         .theme-thumb[data-theme="lavender"] {
             --bg-lavender-1: #120b20;
-            --bg-lavender-2: #6f36b9;
+            --bg-lavender-2: #6532a9;
             --bg-lavender-3: #c4b5fd;
             --p-lavender-1: #a78bfa;
-            --p-lavender-2: #c4b5fd;
+            --p-lavender-2: #c9bdf9;
             --p-lavender-3: #8b5cf6;
         }
 
@@ -967,12 +967,12 @@
         /* ===== Arctic - Icy blues ===== */
         .bg-arctic,
         .theme-thumb[data-theme="arctic"] {
-            --bg-arctic-1: #0a1628;
+            --bg-arctic-1: #112644;
             --bg-arctic-2: #1a3a5c;
             --bg-arctic-3: #a8d4f0;
-            --p-arctic-1: #a8d4f0;
-            --p-arctic-2: #5c9eb8;
-            --p-arctic-3: #b0e0e6;
+            --p-arctic-1: #73b0d6;
+            --p-arctic-2: #497e93;
+            --p-arctic-3: #8bced7;
         }
 
         .bg-arctic {
@@ -1541,8 +1541,12 @@
             const song = state.songs[index];
             state.currentSongIndex = index;
             state.currentPage = 0;
-            const otherThemes = themeKeys.filter(t => t !== currentSettings.theme);
-            currentSettings.theme = otherThemes[Math.floor(Math.random() * otherThemes.length)];
+            if (song.theme && presetThemes[song.theme]) {
+                currentSettings.theme = song.theme;
+            } else {
+                const otherThemes = themeKeys.filter(t => t !== currentSettings.theme);
+                currentSettings.theme = otherThemes[Math.floor(Math.random() * otherThemes.length)];
+            }
             applySettings();
             saveSettings();
             renderSongList();
