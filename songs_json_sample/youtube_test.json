@@ -1,0 +1,13 @@
+{
+  "title": "Mixed Media Demo",
+  "artist": "Test",
+  "theme": "black",
+  "pages": [
+    {"text": "First a normal lyrics page.", "type": "主歌"},
+    {"youtube_link": "dQw4w9WgXcQ"},
+    {"text": "https://youtu.be/dQw4w9WgXcQ is the URL form.", "type": "說明"},
+    {"youtube_link": "https://www.youtube.com/watch?v=oHg5SJYRHA0"},
+    {"text": "Back to lyrics.", "type": "副歌"},
+    {"youtube_link": "this-is-not-a-valid-id"}
+  ]
+}
