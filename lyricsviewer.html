@@ -488,6 +488,8 @@
             font-family: inherit;
         }
 
+        .shortcuts-hint.hidden { display: none; }
+
         input[type="file"] {
             display: none;
         }
@@ -1266,9 +1268,9 @@
 
         <div class="page-indicator" id="pageIndicator"></div>
 
-        <div class="shortcuts-hint">
-            <kbd>F</kbd> Fullscreen <kbd>A</kbd> Add Songs <kbd>S</kbd> Song List <kbd>X</kbd> Remove Song <kbd>T</kbd> Settings<br>
-            <kbd>←</kbd> <kbd>→</kbd> Navigate Pages 
+        <div class="shortcuts-hint" id="shortcutsHint">
+            <kbd>F</kbd> Fullscreen <kbd>A</kbd> Add Songs <kbd>S</kbd> Song List <kbd>X</kbd> Remove Song <kbd>T</kbd> Settings <kbd>H</kbd> Hide Help<br>
+            <kbd>←</kbd> <kbd>→</kbd> Navigate Pages
             <kbd>↑</kbd> <kbd>↓</kbd> Switch Song <kbd>[</kbd> <kbd>]</kbd> Switch Theme
         </div>
     </div>
@@ -1409,6 +1411,7 @@
 
         const SONGS_STORAGE_KEY = 'lyrics-viewer-songs';
         const SETTINGS_STORAGE_KEY = 'lyrics-viewer-settings';
+        const SHORTCUTS_HIDDEN_KEY = 'lyrics-viewer-shortcuts-hidden';
 
         const textColor_sel = '#ffffff';
         const textShadow_sel = '1px 1px 10px rgba(0,0,0,0.7)';
@@ -1513,7 +1516,8 @@
             lineHeight: document.getElementById('lineHeight'),
             lineHeightValue: document.getElementById('lineHeightValue'),
             boldText: document.getElementById('boldText'),
-            themeGrid: document.getElementById('themeGrid')
+            themeGrid: document.getElementById('themeGrid'),
+            shortcutsHint: document.getElementById('shortcutsHint')
         };
 
         function loadFromStorage(key) {
@@ -1534,6 +1538,26 @@
             } catch (e) {
                 console.warn('Failed to save to localStorage:', e);
             }
+        }
+
+        function loadShortcutsHidden() {
+            try {
+                return localStorage.getItem(SHORTCUTS_HIDDEN_KEY) === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function saveShortcutsHidden(hidden) {
+            try {
+                localStorage.setItem(SHORTCUTS_HIDDEN_KEY, hidden ? '1' : '0');
+            } catch (e) {}
+        }
+
+        function toggleShortcutsHint() {
+            const willHide = !elements.shortcutsHint.classList.contains('hidden');
+            elements.shortcutsHint.classList.toggle('hidden', willHide);
+            saveShortcutsHidden(willHide);
         }
 
         function loadSettings() {
@@ -2162,6 +2186,11 @@
                     case 'F':
                         toggleFullscreen();
                         break;
+                    case 'h':
+                    case 'H':
+                        if (e.ctrlKey || e.metaKey || e.altKey) return;
+                        toggleShortcutsHint();
+                        break;
                     case 'ArrowDown':
                         if (state.currentSongIndex < state.songs.length - 1) {
                             loadSong(state.currentSongIndex + 1);
@@ -2278,6 +2307,7 @@
             });
             window.addEventListener('pagehide', clearYouTubeEmbed);
             setupEventListeners();
+            if (loadShortcutsHidden()) elements.shortcutsHint.classList.add('hidden');
             const stored = loadFromStorage(SONGS_STORAGE_KEY);
             if (stored && stored.length > 0) {
                 state.songs = stored;
