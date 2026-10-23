@@ -1478,6 +1478,11 @@
 
         const themeKeys = Object.keys(presetThemes);
 
+// Themes that are never picked automatically (solid colors are jarring as random picks).
+const RANDOM_THEME_EXCLUSIONS = ['black', 'white'];
+
+const randomThemeKeys = themeKeys.filter(t => !RANDOM_THEME_EXCLUSIONS.includes(t));
+
         const defaultSettings = {
             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             fontSize: 8,
@@ -1970,7 +1975,7 @@
             if (song.theme && presetThemes[song.theme]) {
                 currentSettings.theme = song.theme;
             } else {
-                const otherThemes = themeKeys.filter(t => t !== currentSettings.theme);
+                const otherThemes = randomThemeKeys.filter(t => t !== currentSettings.theme);
                 currentSettings.theme = otherThemes[Math.floor(Math.random() * otherThemes.length)];
             }
             applySettings();
