@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXT Lyrics to JSON Converter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 24px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #1a1a2e;
+            background: #f5f5f5;
+        }
+
+        main {
+            width: min(1100px, 100%);
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 2rem;
+        }
+
+        .description {
+            margin: 0 0 28px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: 520px;
+            padding: 14px;
+            resize: vertical;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            color: #1a1a2e;
+            background: #fff;
+            font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        textarea:focus {
+            border-color: #3b82f6;
+            outline: 3px solid rgba(59, 130, 246, 0.15);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin: 24px 0;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 6px;
+            background: #3b82f6;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        button.secondary {
+            color: #1a1a2e;
+            background: #ddd;
+        }
+
+        button.secondary:hover {
+            background: #ccc;
+        }
+
+        .status {
+            min-height: 1.5em;
+            color: #555;
+        }
+
+        .status.error {
+            color: #c62828;
+        }
+
+        .help {
+            margin-top: 26px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            background: #e8f1ff;
+            line-height: 1.6;
+        }
+
+        .help pre {
+            margin: 8px 0 0;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 800px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            textarea {
+                height: 360px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>TXT Lyrics to JSON Converter</h1>
+    <p class="description">Paste a TXT lyric into the first box, then convert it to the LyricsViewer JSON format.</p>
+
+    <div class="workspace">
+        <section class="panel">
+            <label for="txtInput">TXT lyric</label>
+            <textarea id="txtInput" spellcheck="false" placeholder="Paste TXT lyrics here..."></textarea>
+        </section>
+
+        <section class="panel">
+            <label for="jsonOutput">Converted JSON</label>
+            <textarea id="jsonOutput" readonly spellcheck="false" placeholder="Converted JSON will appear here..."></textarea>
+        </section>
+    </div>
+
+    <div class="actions">
+        <button id="convertButton" type="button">Convert</button>
+        <button id="copyButton" class="secondary" type="button">Copy JSON</button>
+        <button id="downloadButton" class="secondary" type="button">Download .json</button>
+        <button id="sampleButton" class="secondary" type="button">Load sample</button>
+        <span id="status" class="status" role="status" aria-live="polite"></span>
+    </div>
+
+    <section class="help">
+        <strong>TXT format</strong>
+        <pre>Title
+Artist | Theme
+
+First lyric page
+
+Second lyric page</pre>
+        The title is on line 1, and each lyric page is separated by an empty line. Artist and theme are optional; when omitted, they remain blank in the JSON.
+        Page types may optionally be declared at the beginning of a page as <code>[主歌]</code>, <code>[副歌]</code>, or any other label.
+    </section>
+</main>
+
+<script>
+    const txtInput = document.getElementById("txtInput");
+    const jsonOutput = document.getElementById("jsonOutput");
+    const statusEl = document.getElementById("status");
+
+    function setStatus(message, isError = false) {
+        statusEl.textContent = message;
+        statusEl.classList.toggle("error", isError);
+    }
+
+    function parseTxt(text) {
+        const lines = text.replace(/\r\n?/g, "\n").split("\n");
+        if (lines.length < 4) {
+            throw new Error("The TXT must contain at least a title, metadata line, blank line, and one lyric page.");
+        }
+
+        const title = lines[0].trim();
+        const metadata = lines[1].trim();
+        const metadataParts = metadata.split("|").map(part => part.trim());
+
+        if (!title) {
+            throw new Error("The title cannot be empty.");
+        }
+
+        // Browsers may normalize line endings to CRLF when text is pasted.
+        // Remove the required blank separator before processing lyric pages.
+        let lyricStart = 2;
+        while (lyricStart < lines.length && !lines[lyricStart].trim()) {
+            lyricStart++;
+        }
+        if (lyricStart === 2) {
+            throw new Error("The third line must be blank.");
+        }
+        if (lyricStart >= lines.length) {
+            throw new Error("No lyric pages were found.");
+        }
+
+        const lyricText = lines.slice(lyricStart).join("\n");
+        const pages = lyricText
+            .split(/\n\s*\n+/)
+            .map(page => page.trim())
+            .filter(Boolean)
+            .map(pageText => {
+                const match = pageText.match(/^\[([^\]]+)\]\s*\n?([\s\S]*)$/);
+                return match
+                    ? { text: match[2].trim(), type: match[1].trim() }
+                    : { text: pageText };
+            });
+
+        if (pages.length === 0) {
+            throw new Error("No lyric pages were found.");
+        }
+
+        return {
+            title,
+            artist: metadataParts[0] || "",
+            theme: metadataParts[1] || "",
+            pages
+        };
+    }
+
+    function convert() {
+        try {
+            const result = parseTxt(txtInput.value);
+            jsonOutput.value = JSON.stringify(result, null, 2);
+            setStatus(`Converted ${result.pages.length} page${result.pages.length === 1 ? "" : "s"}.`);
+        } catch (error) {
+            jsonOutput.value = "";
+            setStatus(error.message, true);
+        }
+    }
+
+    document.getElementById("convertButton").addEventListener("click", convert);
+
+    document.getElementById("copyButton").addEventListener("click", async () => {
+        if (!jsonOutput.value) {
+            setStatus("Convert the lyrics before copying.", true);
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(jsonOutput.value);
+            setStatus("JSON copied to clipboard.");
+        } catch (error) {
+            jsonOutput.select();
+            document.execCommand("copy");
+            setStatus("JSON copied to clipboard.");
+        }
+    });
+
+    document.getElementById("downloadButton").addEventListener("click", () => {
+        if (!jsonOutput.value) {
+            setStatus("Convert the lyrics before downloading.", true);
+            return;
+        }
+
+        let title = "lyrics";
+        try {
+            title = JSON.parse(jsonOutput.value).title || title;
+        } catch (error) {
+            // The output is generated internally and is always valid JSON.
+        }
+
+        const blob = new Blob([jsonOutput.value], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${title.replace(/[\\/:*?"<>|]/g, "_")}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        setStatus("JSON downloaded.");
+    });
+
+    document.getElementById("sampleButton").addEventListener("click", () => {
+        txtInput.value = `聽啊天使高聲唱
+ | sunset
+
+[主歌]
+聽啊 天使高聲唱 榮耀歸於新生王
+神人融洽長歡欣 地上平安人蒙恩
+興起 世間大小邦 齊與諸天共頌揚
+天地唱和喜不勝 基督生於伯利恆
+
+[副歌]
+聽啊 天使高聲唱
+「榮耀歸於新生王。」`;
+        convert();
+    });
+</script>
+</body>
+</html>
